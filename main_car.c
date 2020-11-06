@@ -35,6 +35,8 @@ int maxsmooth(void);
 int minsmooth(void);
 int leftedge(void);
 int rightedge(void);
+int maxedge(void);
+int minedge(void);
 
 //center=5.8
 //right=7.4
@@ -116,7 +118,7 @@ uint16_t smoothed_line[128];
 float smoother[5]={0.2,0.2,0.2,0.2,0.2};
 
 float edge_line[128];
-float edger[3]={-1,0,1};
+float edger[3]={1,0,-1};
 
 
 uint16_t	threshold=30;
@@ -125,6 +127,8 @@ uint16_t	threshold=30;
 // ADC0VAL holds the current ADC value
 uint16_t ADC0VAL;
 
+int left;
+int right;
 
 int setmid=64;
 
@@ -139,6 +143,17 @@ int main(void)
 				FTM3_set_duty_cycle(5.8,50,1);
 
 	for(;;) {
+
+
+	
+		uart0_put("LEFT:");
+		uart0_putnumU(left);
+		uart0_put("RIGHT:");
+		uart0_putnumU(right);
+		uart0_put("\n\r");
+		
+		
+		
 		/*
 			line_averager();
 			edge_finder();
@@ -195,7 +210,7 @@ int main(void)
 				uart3_put("\n\r");
 				uart0_put("\n\r");
 */
-
+/*
 		if (debugcamdata) {
 
 			// Every 2 seconds
@@ -206,7 +221,7 @@ int main(void)
 				sprintf(str,"%i\n\r",-1); // start value
 				uart0_put(str);
 				for (i = 0; i < 127; i++) {
-					sprintf(str,"%f\n", edge_line[i]);
+					sprintf(str,"%f\n", (float)edge_line[i]);
 					uart0_put(str);
 				}
 				sprintf(str,"%i\n\r",-2); // end value
@@ -214,7 +229,7 @@ int main(void)
 				capcnt = 0;
 				GPIOB_PSOR |= (1 << 22);
 			}
-		}
+		}*/
 			/*for (int i=0; i<128;i++){
 				if (edge_line[i]==1){
 					uart0_putnumU(i);
@@ -277,6 +292,10 @@ void FTM2_IRQHandler(void){ //For FTM timer
 		line_averager();
 		edge_finder();
 		
+		
+		//EDGES
+	left=maxedge();	
+	right=minedge();
 		
 		// Disable FTM2 interrupts (until PIT0 overflows
 		//   again and triggers another line capture)
@@ -456,11 +475,11 @@ void line_averager(void){
 	
 	for(int i =0; i<128;i++){
 		float sum=0.0;	
-		if (i<4){
+		if (i<3){
 			sum=line[i];
 		}else{
 		for (int j=4;j>=0;j--){
-			sum += smoother[j]*line[i-j];
+			sum += smoother[j]*line[(2+i)-j];
 		}
 	}
 		smoothed_line[i]=sum;
@@ -470,11 +489,13 @@ void line_averager(void){
 void edge_finder(void){
 	for(int i =0; i<128;i++){
 		float sum=0.0;	
-		if (i<2){
+		if (i<1){
 			sum=smoothed_line[i];
 		}else{
+			
+			//if i>125 pass through
 		for (int j=2;j>=0;j--){
-			sum += edger[j]*smoothed_line[i-j];
+			sum += edger[j]*smoothed_line[(1+i)-j];
 		}
 	}
 		edge_line[i]=sum;
@@ -500,6 +521,34 @@ int minsmooth(void){
 	}
 	return min;
 }
+
+
+//LEFT
+int maxedge(void){
+	int max=edge_line[0];
+	int j=10;
+	for(int i=10; i<128;i++){
+		if (edge_line[i]>max){
+			max=edge_line[i];
+			j=i;
+		}
+	}
+	return j;
+}
+
+//RIGHT
+int minedge(void){
+	float min=INT16_MAX;
+	int j=10;
+	for(int i=10; i<120;i++){
+		if (edge_line[i]<min){
+			min=edge_line[i];
+			j=i;
+		}
+	}
+	return j;
+}
+
 
 /*int leftedge(void){
 	for(int i=0;i<127;i++){
