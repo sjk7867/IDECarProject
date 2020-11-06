@@ -477,6 +477,8 @@ void line_averager(void){
 		float sum=0.0;	
 		if (i<3){
 			sum=line[i];
+		}else if(i>125){
+			sum=line[i];
 		}else{
 		for (int j=4;j>=0;j--){
 			sum += smoother[j]*line[(2+i)-j];
@@ -492,7 +494,6 @@ void edge_finder(void){
 		if (i<1){
 			sum=smoothed_line[i];
 		}else{
-			
 			//if i>125 pass through
 		for (int j=2;j>=0;j--){
 			sum += edger[j]*smoothed_line[(1+i)-j];
