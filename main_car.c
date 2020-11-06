@@ -115,8 +115,8 @@ char str[100];
 uint16_t smoothed_line[128];
 float smoother[5]={0.2,0.2,0.2,0.2,0.2};
 
-uint16_t edge_line[128];
-float edger[2]={-1,1};
+float edge_line[128];
+float edger[3]={-1,0,1};
 
 
 uint16_t	threshold=30;
@@ -139,6 +139,7 @@ int main(void)
 				FTM3_set_duty_cycle(5.8,50,1);
 
 	for(;;) {
+		/*
 			line_averager();
 			edge_finder();
 		int max=maxsmooth();
@@ -193,8 +194,9 @@ int main(void)
 	}
 				uart3_put("\n\r");
 				uart0_put("\n\r");
+*/
 
-		/*if (debugcamdata) {
+		if (debugcamdata) {
 
 			// Every 2 seconds
 			//if (capcnt >= (2/INTEGRATION_TIME)) {
@@ -204,7 +206,7 @@ int main(void)
 				sprintf(str,"%i\n\r",-1); // start value
 				uart0_put(str);
 				for (i = 0; i < 127; i++) {
-					sprintf(str,"%i\n", smoothed_line[i]);
+					sprintf(str,"%f\n", edge_line[i]);
 					uart0_put(str);
 				}
 				sprintf(str,"%i\n\r",-2); // end value
@@ -212,7 +214,7 @@ int main(void)
 				capcnt = 0;
 				GPIOB_PSOR |= (1 << 22);
 			}
-		}*/
+		}
 			/*for (int i=0; i<128;i++){
 				if (edge_line[i]==1){
 					uart0_putnumU(i);
@@ -270,6 +272,12 @@ void FTM2_IRQHandler(void){ //For FTM timer
 		GPIOB_PCOR |= (1 << 9); // CLK = 0
 		clkval = 0; // make sure clock variable = 0
 		pixcnt = -2; // reset counter
+		
+		//FULL line
+		line_averager();
+		edge_finder();
+		
+		
 		// Disable FTM2 interrupts (until PIT0 overflows
 		//   again and triggers another line capture)
 		FTM2_SC &=~FTM_SC_TOIE_MASK;
@@ -461,12 +469,14 @@ void line_averager(void){
 
 void edge_finder(void){
 	for(int i =0; i<128;i++){
-		int sum;
-		if (smoothed_line[i]>(maxsmooth()/2)){
-			sum=1;
+		float sum=0.0;	
+		if (i<2){
+			sum=smoothed_line[i];
 		}else{
-				sum=0;
-			}
+		for (int j=2;j>=0;j--){
+			sum += edger[j]*smoothed_line[i-j];
+		}
+	}
 		edge_line[i]=sum;
 	}
 }
@@ -491,7 +501,7 @@ int minsmooth(void){
 	return min;
 }
 
-int leftedge(void){
+/*int leftedge(void){
 	for(int i=0;i<127;i++){
 		if(edge_line[i]^edge_line[i+1]){
 			return i;
@@ -504,4 +514,4 @@ int rightedge(void){
 			return i;
 		}
 	}
-}
+}*/
