@@ -38,9 +38,9 @@ int rightedge(void);
 int maxedge(void);
 int minedge(void);
 
-//center=5.8
-//right=7.4
-//left=4.3
+float turncenter=5.8;
+float turnright=7.4;
+float turnleft=4.3;
 
 //BLE TX=PTB10=P6
 //BLE RX=PTB11=P5
@@ -130,6 +130,10 @@ uint16_t ADC0VAL;
 int left;
 int right;
 
+
+int maxsmoth;
+int minsmoth;
+
 int setmid=64;
 
 int main(void)
@@ -150,10 +154,41 @@ int main(void)
 		uart0_putnumU(left);
 		uart0_put("RIGHT:");
 		uart0_putnumU(right);
-		uart0_put("\n\r");
 		
+		int pos=((right-left)/2)+left;
+		uart0_put("pos:");
+		uart0_putnumU(pos);
+		uart3_put("pos:");
+		uart3_putnumU(pos);
+		uart3_put("\n");
+		uart0_putnumU(maxsmoth);
+	/*	if ((maxsmoth<30000)&&(maxsmoth>1000)){
+			FTM0_set_duty_cycle(0,10000,1,1);
+			FTM0_set_duty_cycle(0,10000,1,0);
+			uart3_put("BREAK");
+			uart0_put("BREAK");
+			break;
+		}*/
+		FTM0_set_duty_cycle(30,10000,1,1);
+		FTM0_set_duty_cycle(30,10000,1,0);
 		
+		if (pos<62){
+		//	uart3_put("right");
+			int turnammount=((64-pos)/2);
+			uart0_put("right");
+			FTM3_set_duty_cycle((turncenter+0.2*turnammount),50,1);
+		}else if(pos>66){
+		//	uart3_put("left");
+			int turnammount=((pos-64)/2);
+			uart0_put("left");
+			FTM3_set_duty_cycle(turncenter-0.2*turnammount,50,1);
+		}else{
+			//uart3_put("straight");
+			uart0_put("straight");
+			FTM3_set_duty_cycle(5.8,50,1);
+		}
 		
+			uart0_put("\n\r");
 		/*
 			line_averager();
 			edge_finder();
@@ -296,6 +331,10 @@ void FTM2_IRQHandler(void){ //For FTM timer
 		//EDGES
 	left=maxedge();	
 	right=minedge();
+		
+		//MIN/MAX
+		maxsmoth=maxsmooth();
+		minsmoth=minsmooth();
 		
 		// Disable FTM2 interrupts (until PIT0 overflows
 		//   again and triggers another line capture)
@@ -526,7 +565,7 @@ int minsmooth(void){
 
 //LEFT
 int maxedge(void){
-	int max=edge_line[0];
+	int max=0;
 	int j=10;
 	for(int i=10; i<128;i++){
 		if (edge_line[i]>max){

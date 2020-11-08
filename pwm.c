@@ -61,6 +61,11 @@ void FTM0_set_duty_cycle(unsigned int duty_cycle, unsigned int frequency, int di
  */
 void FTM3_set_duty_cycle(float duty_cycle, unsigned int frequency,int en)
 {
+	if (duty_cycle>7.4){
+		duty_cycle=7.4;
+	}else if(duty_cycle<4.3){
+		duty_cycle=4.3;
+	}
 	// Calculate the new cutoff value
 	uint16_t mod = (uint16_t) ((((DEFAULT_SYSTEM_CLOCK/128.0) / frequency) * duty_cycle) / 100.0);
   
