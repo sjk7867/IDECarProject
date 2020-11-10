@@ -13,7 +13,11 @@
 #include <stdlib.h>
 #include <string.h>       // Useful for string operations and memset
 
-
+struct PIDValues{
+	float speed;
+	float Err1;
+	float Err2;
+};
 
 int maxsmooth(void);
 int minsmooth(void);
@@ -39,7 +43,7 @@ int rightedge(void);
 int maxedge(void);
 int minedge(void);
 void bluetoothPID(void);
-float PIDSpeed(float,float,float,float);
+struct PIDValues PIDSpeed(float,struct PIDValues);
 
 float turncenter=5.8;
 float turnright=7.4;
@@ -145,7 +149,11 @@ float PID[] = {6,6,1};
 int main(void)
 {
 	int i;
-	float speed = 0.0;
+	struct PIDValues pid_values;
+	pid_values.speed = 0.0;
+	pid_values.Err1 = 0.0;
+	pid_values.Err2 = 0.0;
+	
 	init();
 	init_GPIO(); // For CLK and SI output on GPIO
 	init_FTM2(); // To generate CLK, SI, and trigger ADC
@@ -184,18 +192,18 @@ int main(void)
 			int turnammount=((64-pos)/2);
 			uart0_put("right");
 			FTM3_set_duty_cycle((turncenter+0.2*turnammount),50,1);
-			speed = PIDSpeed(25,speed,0,0);
+			pid_values = PIDSpeed(25,pid_values);
 		}else if(pos>66){
 		//	uart3_put("left");
 			int turnammount=((pos-64)/2);
 			uart0_put("left");
 			FTM3_set_duty_cycle(turncenter-0.2*turnammount,50,1);
-			speed = PIDSpeed(25,speed,0,0);
+			pid_values = PIDSpeed(25,pid_values);
 		}else{
 			//uart3_put("straight");
 			uart0_put("straight");
 			FTM3_set_duty_cycle(5.8,50,1);
-			speed = PIDSpeed(50,speed,0,0);
+			pid_values = PIDSpeed(50,pid_values);
 		}
 		
 			uart0_put("\n\r");
@@ -619,20 +627,21 @@ void bluetoothPID(void){
 	}
 }
 
-float PIDSpeed(float GoalSpeed, float SpeedOld, float ErrOld1, float ErrOld2){
-	float Err = GoalSpeed - SpeedOld;
-	float Speed = SpeedOld + 
-		PID[0]*(Err-ErrOld1) +
-		PID[1]*(Err+ErrOld1)/2.0 +
-		PID[2]*(Err - 2.0*ErrOld1 + ErrOld2);
+struct PIDValues PIDSpeed(float GoalSpeed, struct PIDValues values){
+	struct PIDValues newValues;
+	float Err = GoalSpeed - values.speed;
+	float Speed = values.speed + 
+		PID[0]*(Err-values.Err1) +
+		PID[1]*(Err+values.Err1)/2.0 +
+		PID[2]*(Err - 2.0*values.Err1 + values.Err2);
 	
 	//Clip the speed at -100 and 100
 	Speed = (Speed > -100) * Speed + !(Speed > -100) * -100;
 	Speed = (Speed < 100) * Speed + !(Speed < 100) * 100;
 	
-	SpeedOld = Speed;
-	ErrOld2 = ErrOld1;
-	ErrOld1 = Err;
+	newValues.speed = Speed;
+	newValues.Err2 = newValues.Err1;
+	newValues.Err1 = Err;
 	
 	if(Speed>=0){
 		FTM0_set_duty_cycle(Speed,10000,1,1);
@@ -642,7 +651,7 @@ float PIDSpeed(float GoalSpeed, float SpeedOld, float ErrOld1, float ErrOld2){
 		FTM0_set_duty_cycle(-1*Speed,10000,0,0);
 	}
 	
-	return Speed;
+	return newValues;
 }
 
 

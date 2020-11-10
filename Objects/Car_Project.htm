@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Objects\Car_Project.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\Car_Project.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Mon Nov 09 20:48:31 2020
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Mon Nov 09 21:26:52 2020
 <BR><P>
-<H3>Maximum Stack Usage =        548 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        564 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; bluetoothPID &rArr; __hardfp_strtof &rArr; __strtof_int &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real &rArr; _scanf_really_real &rArr; _fp_value &rArr; _btod_etento &rArr; _btod_emul &rArr; _e2e
 <P>
@@ -272,7 +272,7 @@ Global Symbols
 <P><STRONG><a name="[109]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[7d]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 548 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 564 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; bluetoothPID &rArr; __hardfp_strtof &rArr; __strtof_int &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real &rArr; _scanf_really_real &rArr; _fp_value &rArr; _btod_etento &rArr; _btod_emul &rArr; _e2e
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;exit
@@ -893,8 +893,7 @@ Global Symbols
 <P><STRONG><a name="[b7]"></a>FTM0_set_duty_cycle</STRONG> (Thumb, 76 bytes, Stack size 16 bytes, pwm.o(i.FTM0_set_duty_cycle))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = FTM0_set_duty_cycle
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PIDSpeed
+<BR>[Called By]<UL><LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PIDSpeed
 </UL>
 
 <P><STRONG><a name="[39]"></a>FTM2_IRQHandler</STRONG> (Thumb, 256 bytes, Stack size 4 bytes, main_car.o(i.FTM2_IRQHandler))
@@ -927,8 +926,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[b3]"></a>PIDSpeed</STRONG> (Thumb, 570 bytes, Stack size 112 bytes, main_car.o(i.PIDSpeed))
-<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = PIDSpeed &rArr; __aeabi_dmul
+<P><STRONG><a name="[b3]"></a>PIDSpeed</STRONG> (Thumb, 578 bytes, Stack size 128 bytes, main_car.o(i.PIDSpeed))
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = PIDSpeed &rArr; __aeabi_dmul
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
@@ -1093,8 +1092,8 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[39]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FTM2_IRQHandler
 </UL>
 
-<P><STRONG><a name="[7e]"></a>main</STRONG> (Thumb, 374 bytes, Stack size 40 bytes, main_car.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 548<LI>Call Chain = main &rArr; bluetoothPID &rArr; __hardfp_strtof &rArr; __strtof_int &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real &rArr; _scanf_really_real &rArr; _fp_value &rArr; _btod_etento &rArr; _btod_emul &rArr; _e2e
+<P><STRONG><a name="[7e]"></a>main</STRONG> (Thumb, 462 bytes, Stack size 56 bytes, main_car.o(i.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 564<LI>Call Chain = main &rArr; bluetoothPID &rArr; __hardfp_strtof &rArr; __strtof_int &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real &rArr; _scanf_really_real &rArr; _fp_value &rArr; _btod_etento &rArr; _btod_emul &rArr; _e2e
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
@@ -1114,7 +1113,6 @@ Global Symbols
 <LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;bluetoothPID
 <LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PIDSpeed
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FTM3_set_duty_cycle
-<LI><a href="#[b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FTM0_set_duty_cycle
 </UL>
 <BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry_main
 </UL>
