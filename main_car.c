@@ -10,6 +10,7 @@
 #include "PWM.h"					// Main motor/servo functionality
 //#include "camera.h"				// Main Camera
 #include <stdio.h>        // General funcitonality
+#include <stdlib.h>
 #include <string.h>       // Useful for string operations and memset
 
 
@@ -37,6 +38,7 @@ int leftedge(void);
 int rightedge(void);
 int maxedge(void);
 int minedge(void);
+void bluetoothPID(void);
 
 float turncenter=5.8;
 float turnright=7.4;
@@ -136,6 +138,9 @@ int minsmoth;
 
 int setmid=64;
 
+//PID coefficients, altered via Bluetooth
+float PID[] = {1,1,1};
+
 int main(void)
 {
 	int i;
@@ -144,12 +149,12 @@ int main(void)
 	init_FTM2(); // To generate CLK, SI, and trigger ADC
 	init_ADC0();
 	init_PIT();	// To trigger camera read based on integration time
-				FTM3_set_duty_cycle(5.8,50,1);
+	FTM3_set_duty_cycle(5.8,50,1);
 
 	for(;;) {
-
-
 	
+		bluetoothPID();
+		
 		uart0_put("LEFT:");
 		uart0_putnumU(left);
 		uart0_put("RIGHT:");
@@ -587,6 +592,30 @@ int minedge(void){
 		}
 	}
 	return j;
+}
+
+void bluetoothPID(void){
+	char values[20];
+	char* split_values;
+	char* endptr;
+	int i = 0;
+	//While more characters are queued up, add them to a string
+	//Split the string by spaces, and set the PID based on the values
+	while ((UART3_S1 & UART_S1_RDRF_MASK)){
+		values[i]= UART3_D;
+		i++;
+	}
+	split_values = strtok(values," ");
+	while(i < 3){
+		if(split_values){
+			PID[i] = strtof(split_values, &endptr);
+		}
+		i++;
+	}
+}
+
+void PIDSpeed(void){
+	
 }
 
 
