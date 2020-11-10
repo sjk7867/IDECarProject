@@ -95,6 +95,7 @@ void PIT1_IRQHandler(void);
 void ADC0_IRQHandler(void);
 void line_averager(void);
 void edge_finder(void);
+void PIDSpeed(int);
 int maxsmooth(void);
 int minsmooth(void);
 
@@ -176,6 +177,8 @@ int main(void)
 		}*/
 		FTM0_set_duty_cycle(30,10000,1,1);
 		FTM0_set_duty_cycle(30,10000,1,0);
+		
+		PIDSpeed(40);
 		
 		if (pos<62){
 		//	uart3_put("right");
@@ -614,8 +617,32 @@ void bluetoothPID(void){
 	}
 }
 
-void PIDSpeed(void){
+void PIDSpeed(int vdes){
+	float SpeedOld = 0;
+	float ErrOld1 = 0;
+	float ErrOld2 = 0;
+	float vact = 0; //PLACEHOLDER, read encoder
+	float Err = vdes - vact;
+	float Speed = SpeedOld + 
+		PID[0]*(Err-ErrOld1) +
+		PID[1]*(Err+ErrOld1)/2.0 +
+		PID[2]*(Err - 2.0*ErrOld1 + ErrOld2);
 	
+	//Clip the speed at -100 and 100
+	Speed = (Speed > -100) * Speed + !(Speed > -100) * -100;
+	Speed = (Speed < 100) * Speed + !(Speed < 100) * 100;
+	
+	SpeedOld = Speed;
+	ErrOld2 = ErrOld1;
+	ErrOld1 = Err;
+	
+	if(Speed>=0){
+		FTM0_set_duty_cycle(Speed,10000,1,1);
+		FTM0_set_duty_cycle(Speed,10000,1,0);
+	}else{
+		FTM0_set_duty_cycle(-1*Speed,10000,0,1);
+		FTM0_set_duty_cycle(-1*Speed,10000,0,0);
+	}
 }
 
 
