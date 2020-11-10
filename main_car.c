@@ -39,6 +39,7 @@ int rightedge(void);
 int maxedge(void);
 int minedge(void);
 void bluetoothPID(void);
+float PIDSpeed(float,float,float,float);
 
 float turncenter=5.8;
 float turnright=7.4;
@@ -95,7 +96,6 @@ void PIT1_IRQHandler(void);
 void ADC0_IRQHandler(void);
 void line_averager(void);
 void edge_finder(void);
-void PIDSpeed(int);
 int maxsmooth(void);
 int minsmooth(void);
 
@@ -140,11 +140,12 @@ int minsmoth;
 int setmid=64;
 
 //PID coefficients, altered via Bluetooth
-float PID[] = {1,1,1};
+float PID[] = {6,6,1};
 
 int main(void)
 {
 	int i;
+	float speed = 0.0;
 	init();
 	init_GPIO(); // For CLK and SI output on GPIO
 	init_FTM2(); // To generate CLK, SI, and trigger ADC
@@ -175,25 +176,26 @@ int main(void)
 			uart0_put("BREAK");
 			break;
 		}*/
-		FTM0_set_duty_cycle(30,10000,1,1);
-		FTM0_set_duty_cycle(30,10000,1,0);
-		
-		PIDSpeed(40);
+		//FTM0_set_duty_cycle(30,10000,1,1);
+		//FTM0_set_duty_cycle(30,10000,1,0);
 		
 		if (pos<62){
 		//	uart3_put("right");
 			int turnammount=((64-pos)/2);
 			uart0_put("right");
 			FTM3_set_duty_cycle((turncenter+0.2*turnammount),50,1);
+			speed = PIDSpeed(25,speed,0,0);
 		}else if(pos>66){
 		//	uart3_put("left");
 			int turnammount=((pos-64)/2);
 			uart0_put("left");
 			FTM3_set_duty_cycle(turncenter-0.2*turnammount,50,1);
+			speed = PIDSpeed(25,speed,0,0);
 		}else{
 			//uart3_put("straight");
 			uart0_put("straight");
 			FTM3_set_duty_cycle(5.8,50,1);
+			speed = PIDSpeed(50,speed,0,0);
 		}
 		
 			uart0_put("\n\r");
@@ -617,12 +619,8 @@ void bluetoothPID(void){
 	}
 }
 
-void PIDSpeed(int vdes){
-	float SpeedOld = 0;
-	float ErrOld1 = 0;
-	float ErrOld2 = 0;
-	float vact = 0; //PLACEHOLDER, read encoder
-	float Err = vdes - vact;
+float PIDSpeed(float GoalSpeed, float SpeedOld, float ErrOld1, float ErrOld2){
+	float Err = GoalSpeed - SpeedOld;
 	float Speed = SpeedOld + 
 		PID[0]*(Err-ErrOld1) +
 		PID[1]*(Err+ErrOld1)/2.0 +
@@ -643,6 +641,8 @@ void PIDSpeed(int vdes){
 		FTM0_set_duty_cycle(-1*Speed,10000,0,1);
 		FTM0_set_duty_cycle(-1*Speed,10000,0,0);
 	}
+	
+	return Speed;
 }
 
 
